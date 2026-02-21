@@ -7,7 +7,7 @@
    Result -- ok(value) or err(code)
    ============================================================ *)
 
-#pub datavtype result(a:t@ype) =
+#pub datavtype result(a:vt@ype) =
   | ok(a) of (a)
   | err(a) of (int)
 
@@ -16,15 +16,15 @@
 unwrap_or(r: result(a), default_val: a): a
 
 (* Is this an ok? Non-consuming check. *)
-#pub fn{a:t@ype}
+#pub fn{a:vt@ype}
 is_ok(r: !result(a)): bool
 
 (* Is this an err? Non-consuming check. *)
-#pub fn{a:t@ype}
+#pub fn{a:vt@ype}
 is_err(r: !result(a)): bool
 
 (* Get error code. Returns -1 if ok. Non-consuming. *)
-#pub fn{a:t@ype}
+#pub fn{a:vt@ype}
 err_code(r: !result(a)): int
 
 (* Discard a result without extracting the value. *)
@@ -35,7 +35,7 @@ discard(r: result(a)): void
    Option -- some(value) or none
    ============================================================ *)
 
-#pub datavtype option(a:t@ype) =
+#pub datavtype option(a:vt@ype) =
   | some(a) of (a)
   | none(a) of ()
 
@@ -44,11 +44,11 @@ discard(r: result(a)): void
 option_unwrap_or(o: option(a), default_val: a): a
 
 (* Is this a some? Non-consuming check. *)
-#pub fn{a:t@ype}
+#pub fn{a:vt@ype}
 is_some(o: !option(a)): bool
 
 (* Is this a none? Non-consuming check. *)
-#pub fn{a:t@ype}
+#pub fn{a:vt@ype}
 is_none(o: !option(a)): bool
 
 (* Discard an option without extracting the value. *)
