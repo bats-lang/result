@@ -4,54 +4,48 @@
 #include "share/atspre_staload.hats"
 
 (* ============================================================
-   Result -- ok(value) or err(code)
+   Result -- ok(value) or err(error)
+   Both type parameters are vt@ype (support linear types).
    ============================================================ *)
 
-#pub datavtype result(a:vt@ype) =
-  | ok(a) of (a)
-  | err(a) of (int)
+#pub datavtype result(a:vt@ype, e:vt@ype) =
+  | ok(a, e) of (a)
+  | err(a, e) of (e)
 
-(* Unwrap ok value or return default. Consumes the result. *)
-#pub fn{a:t@ype}
-unwrap_or(r: result(a), default_val: a): a
+(* Unwrap ok value or return default. Consumes the result.
+   Only works when both a and e are t@ype (copyable/droppable). *)
+#pub fn{a:t@ype}{e:t@ype}
+unwrap_or(r: result(a, e), default_val: a): a
 
 (* Is this an ok? Non-consuming check. *)
-#pub fn{a:vt@ype}
-is_ok(r: !result(a)): bool
+#pub fn{a:vt@ype}{e:vt@ype}
+is_ok(r: !result(a, e)): bool
 
 (* Is this an err? Non-consuming check. *)
-#pub fn{a:vt@ype}
-is_err(r: !result(a)): bool
+#pub fn{a:vt@ype}{e:vt@ype}
+is_err(r: !result(a, e)): bool
 
-(* Get error code. Returns -1 if ok. Non-consuming. *)
-#pub fn{a:vt@ype}
-err_code(r: !result(a)): int
-
-(* Discard a result without extracting the value. *)
-#pub fn{a:t@ype}
-discard(r: result(a)): void
+(* Discard a result without extracting. Only for t@ype. *)
+#pub fn{a:t@ype}{e:t@ype}
+discard(r: result(a, e)): void
 
 (* ============================================================
-   Option -- some(value) or none
+   Option -- some(value) or none (unchanged)
    ============================================================ *)
 
 #pub datavtype option(a:vt@ype) =
   | some(a) of (a)
   | none(a) of ()
 
-(* Unwrap some value or return default. Consumes the option. *)
 #pub fn{a:t@ype}
 option_unwrap_or(o: option(a), default_val: a): a
 
-(* Is this a some? Non-consuming check. *)
 #pub fn{a:vt@ype}
 is_some(o: !option(a)): bool
 
-(* Is this a none? Non-consuming check. *)
 #pub fn{a:vt@ype}
 is_none(o: !option(a)): bool
 
-(* Discard an option without extracting the value. *)
 #pub fn{a:t@ype}
 option_discard(o: option(a)): void
 
@@ -59,28 +53,23 @@ option_discard(o: option(a)): void
    Implementations
    ============================================================ *)
 
-implement{a}
+implement{a}{e}
 unwrap_or(r, default_val) =
   case+ r of
   | ~ok(v) => v
   | ~err(_) => default_val
 
-implement{a}
+implement{a}{e}
 is_ok(r) = let
   val b = case+ r of | ok(_) => true | err(_) => false
 in b end
 
-implement{a}
+implement{a}{e}
 is_err(r) = let
   val b = case+ r of | ok(_) => false | err(_) => true
 in b end
 
-implement{a}
-err_code(r) = let
-  val c = case+ r of | ok(_) => ~1 | err(code) => code
-in c end
-
-implement{a}
+implement{a}{e}
 discard(r) =
   case+ r of | ~ok(_) => () | ~err(_) => ()
 
@@ -109,17 +98,17 @@ option_discard(o) =
    ============================================================ *)
 
 fn _test_result_ok(): void = let
-  val r : result(int) = ok(42)
-  val v = unwrap_or<int>(r, 0)
+  val r : result(int, int) = ok(42)
+  val v = unwrap_or<int><int>(r, 0)
 in () end
 
 fn _test_result_err(): void = let
-  val r : result(int) = err(~1)
-  val v = unwrap_or<int>(r, 0)
+  val r : result(int, int) = err(~1)
+  val v = unwrap_or<int><int>(r, 0)
 in () end
 
 fn _test_result_match(): void = let
-  val r : result(int) = ok(42)
+  val r : result(int, int) = ok(42)
 in
   case+ r of
   | ~ok(v) => ()
@@ -137,9 +126,9 @@ fn _test_option_none(): void = let
 in () end
 
 fn _test_is_ok(): void = let
-  val r : result(int) = ok(1)
-  val b = is_ok<int>(r)
-  val () = discard<int>(r)
+  val r : result(int, int) = ok(1)
+  val b = is_ok<int><int>(r)
+  val () = discard<int><int>(r)
 in () end
 
 fn _test_is_some(): void = let
