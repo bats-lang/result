@@ -1,0 +1,6 @@
+[package]
+name = "results"
+kind = "bin"
+
+[dependencies]
+"result" = ""
