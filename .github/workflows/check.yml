@@ -43,3 +43,8 @@ jobs:
         run: |
           export PATH=~/bats-bin:$PATH
           bats check
+
+      - name: Unit tests
+        run: |
+          export PATH=~/bats-bin:$PATH
+          bats test
