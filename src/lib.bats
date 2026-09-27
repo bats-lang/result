@@ -136,3 +136,44 @@ fn _test_is_some(): void = let
   val b = is_some<int>(o)
   val () = option_discard<int>(o)
 in () end
+
+(* ============================================================
+   Tests (bats test)
+   ============================================================ *)
+
+$UNITTEST.run begin
+
+fn test_unwrap_ok (): bool =
+  unwrap_or<int><int>(ok(42), 0) = 42
+
+fn test_unwrap_err (): bool =
+  unwrap_or<int><int>(err(~1), 7) = 7
+
+fn test_is_ok_err (): bool = let
+  val a : result(int, int) = ok(1)
+  val b : result(int, int) = err(2)
+  val r = is_ok<int><int>(a) && ~is_err<int><int>(a) && is_err<int><int>(b) && ~is_ok<int><int>(b)
+  val () = discard<int><int>(a)
+  val () = discard<int><int>(b)
+in r end
+
+fn test_match_err_value (): bool = let
+  val r : result(int, int) = err(5)
+in
+  case+ r of
+  | ~ok(_) => false
+  | ~err(e) => e = 5
+end
+
+fn test_option_unwrap (): bool =
+  option_unwrap_or<int>(some(99), 0) = 99 && option_unwrap_or<int>(none(), 3) = 3
+
+fn test_is_some_none (): bool = let
+  val a : option(int) = some(1)
+  val b : option(int) = none()
+  val r = is_some<int>(a) && ~is_none<int>(a) && is_none<int>(b) && ~is_some<int>(b)
+  val () = option_discard<int>(a)
+  val () = option_discard<int>(b)
+in r end
+
+end
